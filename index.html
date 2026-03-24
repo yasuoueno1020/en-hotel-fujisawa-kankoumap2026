@@ -1,0 +1,217 @@
+<img src="${s.img}" onerror="this.onerror=null; this.src='images/noimage.jpg';">
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<title>湘南寄り道MAP（スタッフ版）</title>
+
+<style>
+body{
+font-family:Arial;
+margin:0;
+background:#f5f6fa;
+}
+
+header{
+background:#0f4c81;
+color:white;
+padding:20px;
+text-align:center;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:20px;
+}
+
+.card{
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 8px 18px rgba(0,0,0,.12);
+transition:.3s;
+}
+
+.card:hover{
+transform:translateY(-6px);
+}
+
+.card img{
+width:100%;
+height:180px;
+object-fit:cover;
+display:block;
+}
+
+.card-content{
+padding:14px;
+}
+
+.category{
+font-size:12px;
+background:#eef3ff;
+padding:4px 8px;
+border-radius:6px;
+display:inline-block;
+margin-bottom:6px;
+}
+
+.meta{
+font-size:13px;
+color:#555;
+margin-bottom:4px;
+}
+
+.search input{
+width:100%;
+padding:12px;
+font-size:16px;
+margin:20px 0;
+}
+
+.filters button{
+padding:8px 12px;
+margin:5px;
+border:none;
+background:#0f4c81;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+.filters button:hover{
+background:#09345c;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>湘南寄り道MAP（スタッフ用）</h1>
+<p>3秒で提案できる店舗データベース</p>
+</header>
+
+<div class="container">
+
+<h2>MAP</h2>
+<iframe 
+src="https://www.google.com/maps?q=江ノ島&z=14&output=embed"
+width="100%" height="400">
+</iframe>
+
+<div class="search">
+<input type="text" id="search" placeholder="店舗名・ターゲットで検索">
+</div>
+
+<div class="filters">
+<button onclick="filterCategory('all')">すべて</button>
+<button onclick="filterCategory('食べ歩き')">食べ歩き</button>
+<button onclick="filterCategory('カフェ')">カフェ</button>
+<button onclick="filterCategory('湘南土産')">湘南土産</button>
+<button onclick="filterCategory('スイーツ')">スイーツ</button>
+<button onclick="filterCategory('観光')">観光</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+</div>
+
+<script>
+
+let shops=[]
+let currentCategory="all"
+
+fetch("shops.csv")
+.then(res=>res.text())
+.then(data=>{
+
+let rows=data.trim().split("\n").slice(1)
+
+shops=rows.map(r=>{
+let c=r.split(",")
+
+return{
+name:c[0],
+category:c[1],
+area:c[2],
+short:c[3],
+strong:c[4],
+points:c[5],
+target:c[6],
+time:c[7],
+busy:c[8],
+url:c[9],
+img:"images/"+c[10]   // ← ここが修正ポイント
+}
+})
+
+render()
+
+})
+
+function render(){
+
+let grid=document.getElementById("grid")
+let keyword=document.getElementById("search").value.toLowerCase()
+
+grid.innerHTML=""
+
+shops.forEach(s=>{
+
+if(currentCategory!="all" && s.category!=currentCategory) return
+
+if(!s.name.toLowerCase().includes(keyword) &&
+   !s.target.toLowerCase().includes(keyword)) return
+
+grid.innerHTML+=`
+
+<div class="card">
+
+<a href="${s.url}" target="_blank">
+<img src="${s.img}" onerror="this.src='images/noimage.jpg'">
+</a>
+
+<div class="card-content">
+
+<h3>${s.name}</h3>
+
+<div class="category">${s.category}</div>
+
+<div class="meta">👉 ${s.short}</div>
+<div class="meta">★ ${s.strong}</div>
+<div class="meta">👤 ${s.target}</div>
+<div class="meta">⏱ ${s.time}</div>
+<div class="meta">混雑：${s.busy}</div>
+
+<a href="${s.url}" target="_blank">▶ 詳細</a>
+
+</div>
+
+</div>
+
+`
+
+})
+
+}
+
+function filterCategory(cat){
+currentCategory=cat
+render()
+}
+
+document.getElementById("search").addEventListener("input",render)
+
+</script>
+
+</body>
+</html>
