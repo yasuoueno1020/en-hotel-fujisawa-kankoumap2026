@@ -129,10 +129,18 @@
             <span style="color:#666; font-size:14px;">${desc}</span>
           `;
 
-          li.addEventListener('click', () => {
-            map.setView([lat, lng], 16);
-            marker.openPopup();
-          });
+         li.addEventListener('click', () => {
+  map.setView([lat, lng], 16);
+  marker.openPopup();
+
+  // 全部の選択を解除
+  document.querySelectorAll('#shop-list li').forEach(el => {
+    el.classList.remove('active');
+  });
+
+  // クリックしたものだけ強調
+  li.classList.add('active');
+});
 
           shopList.appendChild(li);
         });
