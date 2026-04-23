@@ -22,12 +22,10 @@
 <script>
 const map = L.map('map').setView([35.31, 139.48], 14);
 
-// 地図タイル
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
 }).addTo(map);
 
-// CSV読み込み
 fetch('shops.csv')
   .then(response => response.text())
   .then(data => {
@@ -39,12 +37,18 @@ fetch('shops.csv')
       const name = cols[0];
       const lat = parseFloat(cols[1]);
       const lng = parseFloat(cols[2]);
+      const desc = cols[3];
+      const img = cols[4];
 
       if (isNaN(lat) || isNaN(lng)) return;
 
       L.marker([lat, lng])
         .addTo(map)
-        .bindPopup(`<b>${name}</b>`);
+        .bindPopup(`
+          <b>${name}</b><br>
+          ${desc}<br>
+          <img src="images/${img}" width="150">
+        `);
     });
   });
 </script>
