@@ -12,59 +12,25 @@
     crossorigin=""
   />
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: sans-serif;
-    }
+<style>
+  html, body {
+    margin: 0;
+  }
 
-    #app {
-      display: flex;
-      height: 100vh;
-      width: 100%;
-    }
+  #sidebar {
+    width: 300px;
+  }
 
-    #sidebar {
-      width: 300px;
-      background: #ffffff;
-      border-right: 1px solid #ddd;
-      overflow-y: auto;
-      padding: 16px;
-      box-sizing: border-box;
-    }
+  #shop-list li {
+    padding: 10px;
+  }
 
-    #sidebar h2 {
-      margin: 0 0 16px 0;
-      font-size: 22px;
-    }
-
-    #shop-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    #shop-list li {
-      padding: 10px 12px;
-      margin-bottom: 10px;
-      background: #f7f7f7;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-#shop-list li.active {
-  background: #d0ebff;
-}
-    #shop-list li:hover {
-      background: #eaeaea;
-    }
-
-    #map {
-      flex: 1;
-      height: 100%;
-    }
-  </style>
+  /* 👇ここに追加 */
+  #shop-list li.active {
+    background: #d0ebff;
+    border-left: 4px solid #339af0;
+  }
+</style>
 </head>
 <body>
   <div id="app">
