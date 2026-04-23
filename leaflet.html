@@ -21,12 +21,15 @@
   <div id="map"></div>
 
  <script>
+<script>
 fetch('shops.csv')
   .then(res => res.text())
   .then(text => {
-    const rows = text.split('\n').slice(1);
+    console.log(text); // ← デバッグ用
 
-    rows.forEach(row => {
+    const rows = text.trim().split('\n');
+
+    rows.slice(1).forEach(row => {
       if (!row) return;
 
       const cols = row.split(',');
@@ -34,17 +37,14 @@ fetch('shops.csv')
       const name = cols[0];
       const lat = parseFloat(cols[1]);
       const lng = parseFloat(cols[2]);
-      const desc = cols[3];
-      const img = cols[4];
 
-      if (!lat || !lng) return;
+      console.log(name, lat, lng); // ←確認用
 
-      L.marker([lat, lng]).addTo(map)
-        .bindPopup(`
-          <b>${name}</b><br>
-          ${desc}<br>
-          <img src="画像/${img}" width="150">
-        `);
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup(`<b>${name}</b>`);
     });
   });
 </script>
