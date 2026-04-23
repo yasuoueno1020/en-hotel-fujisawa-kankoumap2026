@@ -18,63 +18,13 @@
   </style>
 </head>
 <body>
-  <div id="map"></div>
-<script>
-const map = L.map('map').setView([35.31, 139.48], 14);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-}).addTo(map);
-
-fetch('shops.csv')
-  .then(response => response.text())
-  .then(data => {
-    const rows = data.trim().split('\n').slice(1);
-
-    rows.forEach(row => {
-      const cols = row.split(',');
-
-      const name = cols[0];
-      const lat = parseFloat(cols[1]);
-      const lng = parseFloat(cols[2]);
-      const desc = cols[3];
-      const img = cols[4];
-
-      if (isNaN(lat) || isNaN(lng)) return;
-
-      L.marker([lat, lng])
-        .addTo(map)
-        .bindPopup(`
-  <div style="
-    width:200px;
-    font-family:sans-serif;
-  ">
-    <div style="
-      font-weight:bold;
-      font-size:18px;
-      margin-bottom:6px;
-    ">
-      ${name}
+  <div id="app">
+    <div id="sidebar">
+      <h2>店舗一覧</h2>
+      <ul id="shop-list"></ul>
     </div>
 
-    <div style="
-      margin-bottom:8px;
-      color:#555;
-      font-size:14px;
-    ">
-      ${desc}
-    </div>
-
-    <img src="images/${img}" 
-         style="
-           width:100%;
-           border-radius:10px;
-           box-shadow:0 2px 6px rgba(0,0,0,0.2);
-         ">
+    <div id="map"></div>
   </div>
-`);
-    });
-  });
-</script>
 </body>
 </html>
