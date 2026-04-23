@@ -45,10 +45,17 @@ fetch('shops.csv')
       L.marker([lat, lng])
         .addTo(map)
         .bindPopup(`
-          <b>${name}</b><br>
-          ${desc}<br>
-          <img src="images/${img}" width="150">
-        `);
+  <div style="width:200px;">
+    <div style="font-weight:bold; font-size:16px; margin-bottom:6px;">
+      ${name}
+    </div>
+    <div style="margin-bottom:8px; color:#555;">
+      ${desc}
+    </div>
+    <img src="images/${img}" 
+         style="width:100%; border-radius:10px;">
+  </div>
+`);
     });
   });
 </script>
