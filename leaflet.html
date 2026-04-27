@@ -115,6 +115,9 @@
             });
 
             li.classList.add('active');
+            document.getElementById('detail-name').textContent = name;
+            document.getElementById('detail-desc').textContent = desc;
+            document.getElementById('detail-img').src = "images/" + img;
           });
 
           shopList.appendChild(li);
