@@ -4,117 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>エンホテル藤沢 観光マップ2026</title>
-
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: sans-serif;
-    }
-
-    #app {
-      display: flex;
-      height: 100vh;
-      width: 100%;
-    }
-
-    #sidebar {
-      width: 300px;
-      background: #fff;
-      border-right: 1px solid #ddd;
-      padding: 16px;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
-
-    #main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    #map {
-      height: 65%;
-      width: 100%;
-    }
-
-    #detail {
-      height: 35%;
-      padding: 20px;
-      background: #fff;
-      border-top: 1px solid #ddd;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
-
-    #shop-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    #shop-list li {
-      padding: 12px;
-      margin-bottom: 10px;
-      background: #f7f7f7;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    #shop-list li.active {
-      background: #d0ebff;
-      border-left: 4px solid #339af0;
-    }
-
-    #detail-card {
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-    }
-
-    #detail-img {
-      width: 220px;
-      max-height: 180px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
+    html, body { margin: 0; padding: 0; height: 100%; font-family: sans-serif; }
+    #app { display: flex; height: 100vh; width: 100%; }
+    #sidebar { width: 320px; background: #fff; border-right: 1px solid #ddd; padding: 16px; box-sizing: border-box; overflow-y: auto; }
+    #main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    #map { height: 60%; width: 100%; }
+    #detail { height: 40%; padding: 20px; background: #fff; border-top: 1px solid #ddd; box-sizing: border-box; overflow-y: auto; }
+    #shop-list { list-style: none; padding: 0; margin: 0; }
+    #shop-list li { padding: 12px; margin-bottom: 10px; background: #f7f7f7; border-radius: 8px; cursor: pointer; }
+    #shop-list li.active { background: #d0ebff; border-left: 4px solid #339af0; }
+    #detail-card { display: flex; gap: 20px; align-items: flex-start; }
+    #detail-img { width: 220px; max-height: 180px; object-fit: cover; border-radius: 10px; }
+    .label { font-weight: bold; color: #333; }
+    .detail-row { margin-bottom: 6px; }
+    .shop-id { font-size: 12px; color: #777; }
+    .qr-img { width: 120px; margin-top: 6px; border: 1px solid #ddd; padding: 6px; background: #fff; }
 
     @media (max-width: 768px) {
-      #app {
-        flex-direction: column;
-      }
-
-      #sidebar {
-        width: 100%;
-        height: 180px;
-        border-right: none;
-        border-bottom: 1px solid #ddd;
-      }
-
-      #main {
-        height: calc(100vh - 180px);
-      }
-
-      #map {
-        height: 55%;
-      }
-
-      #detail {
-        height: 45%;
-      }
-
-      #detail-card {
-        flex-direction: column;
-      }
-
-      #detail-img {
-        width: 100%;
-        max-height: none;
-      }
+      #app { flex-direction: column; }
+      #sidebar { width: 100%; height: 180px; border-right: none; border-bottom: 1px solid #ddd; }
+      #main { height: calc(100vh - 180px); }
+      #map { height: 50%; }
+      #detail { height: 50%; }
+      #detail-card { flex-direction: column; }
+      #detail-img { width: 100%; max-height: none; }
     }
   </style>
 </head>
@@ -131,10 +47,12 @@
 
       <div id="detail">
         <h2 id="detail-name">店舗を選択してください</h2>
+        <div class="shop-id" id="detail-shop-id"></div>
+
         <div id="detail-card">
           <img id="detail-img" src="" alt="" style="display:none;">
-          <div>
-            <p id="detail-desc">左の店舗一覧、または地図上のピンをクリックすると詳細が表示されます。</p>
+          <div id="detail-info">
+            <p>左の店舗一覧、または地図上のピンをクリックすると詳細が表示されます。</p>
           </div>
         </div>
       </div>
@@ -153,18 +71,34 @@
 
     const shopList = document.getElementById('shop-list');
 
-    function showDetail(name, desc, img) {
-      document.getElementById('detail-name').textContent = name;
-      document.getElementById('detail-desc').textContent = desc;
+    function showDetail(shop) {
+      document.getElementById('detail-name').textContent = shop.name;
+      document.getElementById('detail-shop-id').textContent = "SHOP ID: " + shop.shopId + " / QR ID: " + shop.qrId;
 
       const detailImg = document.getElementById('detail-img');
-
-      if (img) {
-        detailImg.src = "images/" + img;
+      if (shop.img) {
+        detailImg.src = "images/" + shop.img;
         detailImg.style.display = "block";
       } else {
         detailImg.style.display = "none";
       }
+
+      document.getElementById('detail-info').innerHTML = `
+        <div class="detail-row"><span class="label">エリア：</span>${shop.area}</div>
+        <div class="detail-row"><span class="label">一言説明：</span>${shop.shortDesc}</div>
+        <div class="detail-row"><span class="label">強み：</span>${shop.strength}</div>
+        <div class="detail-row"><span class="label">おすすめ：</span>${shop.recommend}</div>
+        <div class="detail-row"><span class="label">ターゲット：</span>${shop.target}</div>
+        <div class="detail-row"><span class="label">所要時間：</span>${shop.duration}</div>
+        <div class="detail-row"><span class="label">混雑：</span>${shop.crowd}</div>
+        ${shop.shopUrl ? `<div class="detail-row"><a href="${shop.shopUrl}" target="_blank">SHOP URL</a></div>` : ''}
+        ${shop.qrImage ? `
+          <div class="detail-row">
+            <span class="label">QRコード：</span><br>
+            <img src="images/${shop.qrImage}" class="qr-img" alt="${shop.qrId}">
+          </div>
+        ` : ''}
+      `;
     }
 
     fetch('shops.csv')
@@ -177,33 +111,46 @@
 
           const cols = row.split(',');
 
-          const name = cols[0];
-          const lat = parseFloat(cols[1]);
-          const lng = parseFloat(cols[2]);
-          const desc = cols[3] || '';
-          const img = cols[4] || '';
+          const shop = {
+            shopId: cols[0] || '',
+            name: cols[1] || '',
+            lat: parseFloat(cols[2]),
+            lng: parseFloat(cols[3]),
+            img: cols[4] || '',
+            qrId: cols[5] || '',
+            qrImage: cols[6] || '',
+            area: cols[7] || '',
+            shortDesc: cols[8] || '',
+            strength: cols[9] || '',
+            recommend: cols[10] || '',
+            target: cols[11] || '',
+            duration: cols[12] || '',
+            crowd: cols[13] || '',
+            shopUrl: cols[14] || ''
+          };
 
-          if (isNaN(lat) || isNaN(lng)) return;
+          if (isNaN(shop.lat) || isNaN(shop.lng)) return;
 
           const popupHtml = `
             <div style="width:200px;">
-              <strong>${name}</strong><br>
-              ${desc}
+              <strong>${shop.name}</strong><br>
+              ${shop.shortDesc}
             </div>
           `;
 
-          const marker = L.marker([lat, lng])
+          const marker = L.marker([shop.lat, shop.lng])
             .addTo(map)
             .bindPopup(popupHtml);
 
           const li = document.createElement('li');
           li.innerHTML = `
-            <strong>${name}</strong><br>
-            <span style="color:#666; font-size:14px;">${desc}</span>
+            <div class="shop-id">${shop.shopId}</div>
+            <strong>${shop.name}</strong><br>
+            <span style="color:#666; font-size:14px;">${shop.shortDesc}</span>
           `;
 
           function selectShop() {
-            map.setView([lat, lng], 16);
+            map.setView([shop.lat, shop.lng], 16);
             marker.openPopup();
 
             document.querySelectorAll('#shop-list li').forEach(el => {
@@ -211,7 +158,7 @@
             });
 
             li.classList.add('active');
-            showDetail(name, desc, img);
+            showDetail(shop);
           }
 
           li.addEventListener('click', selectShop);
