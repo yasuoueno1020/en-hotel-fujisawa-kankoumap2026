@@ -37,12 +37,12 @@
     }
 
     #map {
-      height: 58%;
+      height: 55%;
       width: 100%;
     }
 
     #detail {
-      height: 42%;
+      height: 45%;
       padding: 24px;
       background: #fff;
       border-top: 1px solid #ddd;
@@ -79,7 +79,7 @@
       display: flex;
       gap: 24px;
       align-items: flex-start;
-      max-width: 1000px;
+      max-width: 1100px;
     }
 
     #detail-img {
@@ -105,6 +105,14 @@
     .detail-row {
       margin-bottom: 7px;
       line-height: 1.5;
+    }
+
+    .article {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f7f7f7;
+      border-radius: 8px;
+      line-height: 1.7;
     }
 
     .qr-img {
@@ -142,11 +150,11 @@
       }
 
       #map {
-        height: 48%;
+        height: 45%;
       }
 
       #detail {
-        height: 52%;
+        height: 55%;
         padding: 16px;
       }
 
@@ -210,7 +218,7 @@
       const detailImg = document.getElementById('detail-img');
 
       if (shop.imageFile) {
-       detailImg.src = "images/shop_img/" + shop.imageFile;
+        detailImg.src = "images/shop_img/" + shop.imageFile;
         detailImg.alt = shop.imageId;
         detailImg.style.display = "block";
       } else {
@@ -225,7 +233,11 @@
         <div class="detail-row"><span class="label">ターゲット：</span>${shop.target}</div>
         <div class="detail-row"><span class="label">所要時間：</span>${shop.duration}</div>
         <div class="detail-row"><span class="label">混雑：</span>${shop.crowd}</div>
+        <div class="detail-row"><span class="label">アクセス：</span>${shop.access}</div>
+        <div class="detail-row"><span class="label">営業時間：</span>${shop.businessHours}</div>
+        <div class="detail-row"><span class="label">定休日：</span>${shop.closed}</div>
         ${shop.shopUrl ? `<div class="detail-row"><a href="${shop.shopUrl}" target="_blank">SHOP URL</a></div>` : ''}
+        ${shop.article ? `<div class="article"><span class="label">紹介記事：</span><br>${shop.article}</div>` : ''}
         ${shop.qrImage ? `
           <div class="detail-row">
             <span class="label">QRコード：</span><br>
@@ -261,7 +273,11 @@
             target: cols[12] || '',
             duration: cols[13] || '',
             crowd: cols[14] || '',
-            shopUrl: cols[15] || ''
+            shopUrl: cols[15] || '',
+            access: cols[16] || '',
+            businessHours: cols[17] || '',
+            closed: cols[18] || '',
+            article: cols[19] || ''
           };
 
           if (isNaN(shop.lat) || isNaN(shop.lng)) return;
