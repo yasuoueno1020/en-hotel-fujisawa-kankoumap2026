@@ -1,3 +1,3 @@
 shop_id,name,lat,lng,image,qr_id,qr_image,area,short_desc,strength,recommend,target,duration,crowd,shop_url
-S001,corrology,35.309,139.482,corrology.jpg,QR001,qr001.png,片瀬江ノ島,おしゃれなカフェ,こだわりのポップコーン,休憩におすすめ,カップル・観光客,30分,普通,https://cornology.jp/
+S001,corrology,35.309,139.482,corrology.jpg,QR001,qr001.png,片瀬江ノ島,おしゃれなカフェ,こだわりのポップコーン,休憩におすすめ,カップル・観光客,30分,普通,https://www.yahoo.co.jp/
 S002,KOINOBORI,35.310,139.489,koinobori.jpg,QR002,qr002.png,江の島,点心のお店,手作り点心,食べ歩きにおすすめ,ファミリー・観光客,20分,やや混雑,https://www.instagram.com/koinobori_shonan/
