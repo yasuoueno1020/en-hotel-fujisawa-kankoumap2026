@@ -106,19 +106,20 @@
             <span style="color:#666; font-size:14px;">${desc}</span>
           `;
 
-          li.addEventListener('click', () => {
-            map.setView([lat, lng], 16);
-            marker.openPopup();
+li.addEventListener('click', () => {
+  map.setView([lat, lng], 16);
+  marker.openPopup();
 
-            document.querySelectorAll('#shop-list li').forEach(el => {
-              el.classList.remove('active');
-            });
+  document.querySelectorAll('#shop-list li').forEach(el => {
+    el.classList.remove('active');
+  });
 
-            li.classList.add('active');
-            document.getElementById('detail-name').textContent = name;
-            document.getElementById('detail-desc').textContent = desc;
-            document.getElementById('detail-img').src = "images/" + img;
-          });
+  li.classList.add('active');
+
+  document.getElementById('detail-name').textContent = name;
+  document.getElementById('detail-desc').textContent = desc;
+  document.getElementById('detail-img').src = "images/" + img;
+});
 
           shopList.appendChild(li);
         });
