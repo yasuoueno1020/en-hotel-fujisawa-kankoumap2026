@@ -1,217 +1,166 @@
-<img src="${s.img}" onerror="this.onerror=null; this.src='images/noimage.jpg';">
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="robots" content="noindex, nofollow">
-<title>湘南寄り道MAP（スタッフ版）</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エンホテル藤沢 観光マップ2026</title>
 
-<style>
-body{
-font-family:Arial;
-margin:0;
-background:#f5f6fa;
-}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-header{
-background:#0f4c81;
-color:white;
-padding:20px;
-text-align:center;
-}
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
 
-.container{
-max-width:1200px;
-margin:auto;
-padding:20px;
-}
+    #app {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+    }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:20px;
-}
+    #sidebar {
+      width: 300px;
+      background: #fff;
+      border-right: 1px solid #ddd;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
 
-.card{
-background:white;
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 8px 18px rgba(0,0,0,.12);
-transition:.3s;
-}
+    #sidebar h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+    }
 
-.card:hover{
-transform:translateY(-6px);
-}
+    #shop-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
 
-.card img{
-width:100%;
-height:180px;
-object-fit:cover;
-display:block;
-}
+    #shop-list li {
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #f7f7f7;
+      border-radius: 8px;
+      cursor: pointer;
+    }
 
-.card-content{
-padding:14px;
-}
+    #shop-list li:hover {
+      background: #eaeaea;
+    }
 
-.category{
-font-size:12px;
-background:#eef3ff;
-padding:4px 8px;
-border-radius:6px;
-display:inline-block;
-margin-bottom:6px;
-}
+    #shop-list li.active {
+      background: #d0ebff;
+      border-left: 4px solid #339af0;
+    }
 
-.meta{
-font-size:13px;
-color:#555;
-margin-bottom:4px;
-}
+    #map {
+      flex: 1;
+      height: 100%;
+    }
 
-.search input{
-width:100%;
-padding:12px;
-font-size:16px;
-margin:20px 0;
-}
+    @media (max-width: 768px) {
+      #app {
+        flex-direction: column;
+      }
 
-.filters button{
-padding:8px 12px;
-margin:5px;
-border:none;
-background:#0f4c81;
-color:white;
-border-radius:6px;
-cursor:pointer;
-}
+      #sidebar {
+        width: 100%;
+        height: 220px;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+      }
 
-.filters button:hover{
-background:#09345c;
-}
-</style>
+      #map {
+        height: calc(100vh - 220px);
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div id="app">
+    <div id="sidebar">
+      <h2>店舗一覧</h2>
+      <ul id="shop-list"></ul>
+    </div>
 
-<header>
-<h1>湘南寄り道MAP（スタッフ用）</h1>
-<p>3秒で提案できる店舗データベース</p>
-</header>
+    <div id="map"></div>
+  </div>
 
-<div class="container">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<h2>MAP</h2>
-<iframe 
-src="https://www.google.com/maps?q=江ノ島&z=14&output=embed"
-width="100%" height="400">
-</iframe>
+  <script>
+    const map = L.map('map').setView([35.31, 139.48], 14);
 
-<div class="search">
-<input type="text" id="search" placeholder="店舗名・ターゲットで検索">
-</div>
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-<div class="filters">
-<button onclick="filterCategory('all')">すべて</button>
-<button onclick="filterCategory('食べ歩き')">食べ歩き</button>
-<button onclick="filterCategory('カフェ')">カフェ</button>
-<button onclick="filterCategory('湘南土産')">湘南土産</button>
-<button onclick="filterCategory('スイーツ')">スイーツ</button>
-<button onclick="filterCategory('観光')">観光</button>
-</div>
+    const shopList = document.getElementById('shop-list');
 
-<div class="grid" id="grid"></div>
+    fetch('shops.csv')
+      .then(response => response.text())
+      .then(data => {
+        const rows = data.trim().split('\n').slice(1);
 
-</div>
+        rows.forEach(row => {
+          if (!row.trim()) return;
 
-<script>
+          const cols = row.split(',');
 
-let shops=[]
-let currentCategory="all"
+          const name = cols[0];
+          const lat = parseFloat(cols[1]);
+          const lng = parseFloat(cols[2]);
+          const desc = cols[3] || '';
+          const img = cols[4] || '';
 
-fetch("shops.csv")
-.then(res=>res.text())
-.then(data=>{
+          if (isNaN(lat) || isNaN(lng)) return;
 
-let rows=data.trim().split("\n").slice(1)
+          const popupHtml = `
+            <div style="width:200px; font-family:sans-serif;">
+              <div style="font-weight:bold; font-size:18px; margin-bottom:6px;">
+                ${name}
+              </div>
+              <div style="margin-bottom:8px; color:#555; font-size:14px;">
+                ${desc}
+              </div>
+              ${img ? `<img src="images/${img}" style="width:100%; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.2);">` : ''}
+            </div>
+          `;
 
-shops=rows.map(r=>{
-let c=r.split(",")
+          const marker = L.marker([lat, lng])
+            .addTo(map)
+            .bindPopup(popupHtml);
 
-return{
-name:c[0],
-category:c[1],
-area:c[2],
-short:c[3],
-strong:c[4],
-points:c[5],
-target:c[6],
-time:c[7],
-busy:c[8],
-url:c[9],
-img:"images/"+c[10]   // ← ここが修正ポイント
-}
-})
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <strong>${name}</strong><br>
+            <span style="color:#666; font-size:14px;">${desc}</span>
+          `;
 
-render()
+          li.addEventListener('click', () => {
+            map.setView([lat, lng], 16);
+            marker.openPopup();
 
-})
+            document.querySelectorAll('#shop-list li').forEach(el => {
+              el.classList.remove('active');
+            });
 
-function render(){
+            li.classList.add('active');
+          });
 
-let grid=document.getElementById("grid")
-let keyword=document.getElementById("search").value.toLowerCase()
-
-grid.innerHTML=""
-
-shops.forEach(s=>{
-
-if(currentCategory!="all" && s.category!=currentCategory) return
-
-if(!s.name.toLowerCase().includes(keyword) &&
-   !s.target.toLowerCase().includes(keyword)) return
-
-grid.innerHTML+=`
-
-<div class="card">
-
-<a href="${s.url}" target="_blank">
-<img src="${s.img}" onerror="this.src='images/noimage.jpg'">
-</a>
-
-<div class="card-content">
-
-<h3>${s.name}</h3>
-
-<div class="category">${s.category}</div>
-
-<div class="meta">👉 ${s.short}</div>
-<div class="meta">★ ${s.strong}</div>
-<div class="meta">👤 ${s.target}</div>
-<div class="meta">⏱ ${s.time}</div>
-<div class="meta">混雑：${s.busy}</div>
-
-<a href="${s.url}" target="_blank">▶ 詳細</a>
-
-</div>
-
-</div>
-
-`
-
-})
-
-}
-
-function filterCategory(cat){
-currentCategory=cat
-render()
-}
-
-document.getElementById("search").addEventListener("input",render)
-
-</script>
-
+          shopList.appendChild(li);
+        });
+      })
+      .catch(error => {
+        console.error('CSV読み込みエラー:', error);
+      });
+  </script>
 </body>
 </html>
