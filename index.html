@@ -2,12 +2,16 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>湘南観光マップ</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: sans-serif;
@@ -40,7 +44,8 @@
       padding: 0 18px 18px;
     }
 
-    .panel, .card {
+    .panel,
+    .card {
       background: #fff;
       border: 1px solid #d9e3ea;
       border-radius: 12px;
@@ -56,6 +61,7 @@
     .section-title {
       font-weight: bold;
       margin: 0 0 10px;
+      font-size: 14px;
     }
 
     input {
@@ -79,8 +85,7 @@
       color: #05746f;
       padding: 7px 12px;
       border-radius: 999px;
-      cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .chip.active {
@@ -101,6 +106,11 @@
       margin-bottom: 10px;
       cursor: pointer;
       background: #fff;
+      transition: .2s;
+    }
+
+    #shop-list li:hover {
+      transform: translateY(-1px);
     }
 
     #shop-list li.active {
@@ -111,53 +121,56 @@
     .shop-id {
       font-size: 12px;
       color: #777;
+      margin-bottom: 4px;
     }
 
-   .main {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
+    .main {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
 
-#map {
-  width: 100%;
-  height: 420px;
-  border-radius: 12px;
-}
+    #map {
+      width: 100%;
+      height: 420px;
+      border-radius: 12px;
+    }
 
-.map-card {
-  padding: 14px;
-  height: auto;
-}
+    .map-card {
+      padding: 14px;
+      height: auto;
+    }
+
     .detail {
       padding: 18px;
     }
 
-  .detail-grid {
-  display: grid;
-  grid-template-columns: minmax(500px, 760px) 220px;
-  gap: 20px;
-  align-items: start;
-}
+    .detail-grid {
+      display: grid;
+      grid-template-columns: minmax(500px, 760px) 220px;
+      gap: 20px;
+      align-items: start;
+    }
 
-   .shop-image {
-  width: 100%;
-  max-width: 720px;
-  height: 320px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  display: block;
-}
+    .shop-image {
+      width: 100%;
+      max-width: 720px;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      display: block;
+    }
 
     .detail h2 {
       margin: 8px 0;
-      font-size: 28px;
+      font-size: 30px;
     }
 
     .article {
       line-height: 1.8;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
+      color: #444;
     }
 
     .info-grid {
@@ -176,13 +189,16 @@
 
     .label {
       font-weight: bold;
-      color: #345;
       display: block;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      color: #345;
     }
 
     .qr-card {
       padding: 16px;
+      border: 1px solid #d9e3ea;
+      border-radius: 12px;
+      background: #fafcfd;
     }
 
     .qr-card img {
@@ -191,6 +207,7 @@
       border-radius: 10px;
       padding: 8px;
       background: #fff;
+      margin-bottom: 10px;
     }
 
     .btn {
@@ -210,21 +227,18 @@
     }
 
     .btn-outline {
-      color: #008b84;
       background: #fff;
+      color: #008b84;
     }
 
     @media (max-width: 900px) {
+
       .layout {
         grid-template-columns: 1fr;
       }
 
       .sidebar {
         height: auto;
-      }
-
-      .main {
-        grid-template-rows: 320px auto;
       }
 
       .detail-grid {
@@ -234,198 +248,258 @@
       .info-grid {
         grid-template-columns: 1fr;
       }
+
+      .shop-image {
+        max-width: 100%;
+        height: auto;
+      }
+
+      #map {
+        height: 320px;
+      }
     }
+
   </style>
 </head>
 
 <body>
+
   <header class="header">
     <small>SHONAN TOURISM MAP</small>
     <h1>湘南観光マップ</h1>
-    <p>湘南エリアの飲食店・土産店・立ち寄りスポットを紹介する観光マップです。</p>
+    <p>湘南エリアの飲食店・観光スポットを紹介する観光マップです。</p>
   </header>
 
   <div class="layout">
+
     <aside class="panel sidebar">
+
       <p class="section-title">検索</p>
-      <input id="searchInput" type="text" placeholder="店舗名・エリア・説明で検索">
+
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="店舗名・エリア・説明で検索"
+      >
 
       <p class="section-title">カテゴリ</p>
+
       <div class="chips">
-        <button class="chip active" data-category="all">すべて</button>
-        <button class="chip" data-category="食べ歩き">食べ歩き</button>
-        <button class="chip" data-category="カフェ">カフェ</button>
-        <button class="chip" data-category="土産">土産</button>
+        <span class="chip active">すべて</span>
+        <span class="chip">食べ歩き</span>
+        <span class="chip">カフェ</span>
+        <span class="chip">土産</span>
       </div>
 
       <p class="section-title">店舗一覧</p>
+
       <ul id="shop-list"></ul>
+
     </aside>
 
     <main class="main">
+
       <section class="panel map-card">
         <p class="section-title">地図エリア</p>
         <div id="map"></div>
       </section>
 
       <section class="card detail">
+
         <p class="section-title">店舗詳細</p>
+
         <div id="detail">
-          <p>左の店舗一覧、または地図上のピンをクリックすると詳細が表示されます。</p>
+          左の店舗を選択してください
         </div>
+
       </section>
+
     </main>
+
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
+
     const map = L.map('map').setView([35.31, 139.48], 14);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    let shops = [];
-    let markers = [];
-    let activeCategory = 'all';
+    L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }
+    ).addTo(map);
 
     const shopList = document.getElementById('shop-list');
     const detail = document.getElementById('detail');
-    const searchInput = document.getElementById('searchInput');
-
-    function parseCSV(text) {
-      return text.trim().split('\n').slice(1).map(row => {
-        const cols = row.split(',');
-        return {
-          shopId: cols[0] || '',
-          name: cols[1] || '',
-          lat: parseFloat(cols[2]),
-          lng: parseFloat(cols[3]),
-          imageId: cols[4] || '',
-          imageFile: cols[5] || '',
-          qrId: cols[6] || '',
-          qrImage: cols[7] || '',
-          area: cols[8] || '',
-          shortDesc: cols[9] || '',
-          strength: cols[10] || '',
-          recommend: cols[11] || '',
-          target: cols[12] || '',
-          duration: cols[13] || '',
-          crowd: cols[14] || '',
-          shopUrl: cols[15] || '',
-          access: cols[16] || '',
-          businessHours: cols[17] || '',
-          closed: cols[18] || '',
-          article: cols[19] || ''
-        };
-      }).filter(shop => !isNaN(shop.lat) && !isNaN(shop.lng));
-    }
-
-    function showDetail(shop) {
-      detail.innerHTML = `
-        <div class="detail-grid">
-          <div>
-            <img class="shop-image" src="images/shop_img/${shop.imageFile}" alt="${shop.imageId}">
-            <div class="chips">
-              <span class="chip">${shop.area}</span>
-              <span class="chip">${shop.target}</span>
-              <span class="chip">${shop.crowd}</span>
-            </div>
-
-            <h2>${shop.name}（${shop.shopId}）</h2>
-            <p class="article">${shop.article || shop.shortDesc}</p>
-
-            <div class="info-grid">
-              <div class="info-box"><span class="label">アクセス</span>${shop.access}</div>
-              <div class="info-box"><span class="label">営業時間</span>${shop.businessHours}</div>
-              <div class="info-box"><span class="label">定休日</span>${shop.closed}</div>
-              <div class="info-box"><span class="label">所要時間</span>${shop.duration}</div>
-              <div class="info-box"><span class="label">強み</span>${shop.strength}</div>
-              <div class="info-box"><span class="label">おすすめ</span>${shop.recommend}</div>
-            </div>
-          </div>
-
-          <div class="qr-card">
-            <p class="section-title">SNS QRコード</p>
-            ${shop.qrImage ? `<img src="images/qr/${shop.qrImage}" alt="${shop.qrId}">` : ''}
-            <small>${shop.qrId}</small>
-            ${shop.shopUrl ? `<a class="btn btn-primary" href="${shop.shopUrl}" target="_blank">SNSを見る</a>` : ''}
-          </div>
-        </div>
-      `;
-    }
-
-    function render() {
-      shopList.innerHTML = '';
-      markers.forEach(marker => map.removeLayer(marker));
-      markers = [];
-
-      const keyword = searchInput.value.trim().toLowerCase();
-
-      const filtered = shops.filter(shop => {
-        const text = [
-          shop.name, shop.area, shop.shortDesc, shop.recommend,
-          shop.target, shop.article
-        ].join(' ').toLowerCase();
-
-        const matchKeyword = !keyword || text.includes(keyword);
-        const matchCategory =
-          activeCategory === 'all' ||
-          text.includes(activeCategory.toLowerCase());
-
-        return matchKeyword && matchCategory;
-      });
-
-      filtered.forEach(shop => {
-        const marker = L.marker([shop.lat, shop.lng]).addTo(map);
-        marker.bindPopup(`<strong>${shop.name}</strong><br>${shop.shortDesc}`);
-
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <div class="shop-id">${shop.shopId}</div>
-          <strong>${shop.name}</strong><br>
-          <span>${shop.shortDesc}</span>
-        `;
-
-        function selectShop() {
-          document.querySelectorAll('#shop-list li').forEach(el => el.classList.remove('active'));
-          li.classList.add('active');
-          map.setView([shop.lat, shop.lng], 16);
-          marker.openPopup();
-          showDetail(shop);
-        }
-
-        li.addEventListener('click', selectShop);
-        marker.on('click', selectShop);
-
-        shopList.appendChild(li);
-        markers.push(marker);
-      });
-    }
-
-    document.querySelectorAll('.chip[data-category]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.chip[data-category]').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeCategory = btn.dataset.category;
-        render();
-      });
-    });
-
-    searchInput.addEventListener('input', render);
 
     fetch('shops.csv')
       .then(response => response.text())
-      .then(text => {
-        shops = parseCSV(text);
-        render();
+      .then(data => {
 
-        if (shops.length > 0) {
-          showDetail(shops[0]);
-        }
+        const rows = data.trim().split('\n').slice(1);
+
+        rows.forEach(row => {
+
+          if (!row.trim()) return;
+
+          const cols = row.split(',');
+
+          const shop = {
+
+            shopId: cols[0] || '',
+            name: cols[1] || '',
+            lat: parseFloat(cols[2]),
+            lng: parseFloat(cols[3]),
+
+            imageId: cols[4] || '',
+            imageFile: cols[5] || '',
+
+            qrId: cols[6] || '',
+            qrImage: cols[7] || '',
+
+            area: cols[8] || '',
+            shortDesc: cols[9] || '',
+            strength: cols[10] || '',
+            recommend: cols[11] || '',
+            target: cols[12] || '',
+            duration: cols[13] || '',
+            crowd: cols[14] || '',
+            shopUrl: cols[15] || '',
+
+            access: cols[16] || '',
+            businessHours: cols[17] || '',
+            closed: cols[18] || '',
+            article: cols[19] || ''
+
+          };
+
+          if (isNaN(shop.lat) || isNaN(shop.lng)) return;
+
+          const marker = L.marker([shop.lat, shop.lng])
+            .addTo(map)
+            .bindPopup(`
+              <strong>${shop.name}</strong><br>
+              ${shop.shortDesc}
+            `);
+
+          const li = document.createElement('li');
+
+          li.innerHTML = `
+            <div class="shop-id">${shop.shopId}</div>
+            <strong>${shop.name}</strong><br>
+            <span>${shop.shortDesc}</span>
+          `;
+
+          function showDetail() {
+
+            document.querySelectorAll('#shop-list li')
+              .forEach(el => el.classList.remove('active'));
+
+            li.classList.add('active');
+
+            map.setView([shop.lat, shop.lng], 16);
+
+            marker.openPopup();
+
+            detail.innerHTML = `
+
+              <div class="detail-grid">
+
+                <div>
+
+                  <img
+                    class="shop-image"
+                    src="images/shop_img/${shop.imageFile}"
+                    alt="${shop.imageId}"
+                  >
+
+                  <div class="chips">
+                    <span class="chip">${shop.area}</span>
+                    <span class="chip">${shop.target}</span>
+                    <span class="chip">${shop.crowd}</span>
+                  </div>
+
+                  <h2>${shop.name}（${shop.shopId}）</h2>
+
+                  <p class="article">
+                    ${shop.article || shop.shortDesc}
+                  </p>
+
+                  <div class="info-grid">
+
+                    <div class="info-box">
+                      <span class="label">アクセス</span>
+                      ${shop.access}
+                    </div>
+
+                    <div class="info-box">
+                      <span class="label">営業時間</span>
+                      ${shop.businessHours}
+                    </div>
+
+                    <div class="info-box">
+                      <span class="label">定休日</span>
+                      ${shop.closed}
+                    </div>
+
+                    <div class="info-box">
+                      <span class="label">所要時間</span>
+                      ${shop.duration}
+                    </div>
+
+                    <div class="info-box">
+                      <span class="label">強み</span>
+                      ${shop.strength}
+                    </div>
+
+                    <div class="info-box">
+                      <span class="label">おすすめ</span>
+                      ${shop.recommend}
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div class="qr-card">
+
+                  <p class="section-title">SNS QRコード</p>
+
+                  <img
+                    src="images/qr/${shop.qrImage}"
+                    alt="${shop.qrId}"
+                  >
+
+                  <small>${shop.qrId}</small>
+
+                  <a
+                    class="btn btn-primary"
+                    href="${shop.shopUrl}"
+                    target="_blank"
+                  >
+                    SNSを見る
+                  </a>
+
+                </div>
+
+              </div>
+
+            `;
+          }
+
+          li.addEventListener('click', showDetail);
+          marker.on('click', showDetail);
+
+          shopList.appendChild(li);
+
+        });
+
       });
+
   </script>
+
 </body>
 </html>
