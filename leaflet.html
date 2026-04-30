@@ -1,72 +1,120 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>エンホテル藤沢 観光マップ2026</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>湘南観光マップ</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
   <style>
-    html, body {
+    * { box-sizing: border-box; }
+
+    body {
       margin: 0;
-      padding: 0;
-      height: 100%;
       font-family: sans-serif;
+      background: #f3f6f8;
+      color: #123;
     }
 
-    #app {
-      display: flex;
-      height: 100vh;
-      width: 100%;
-    }
-
-    #sidebar {
-      width: 320px;
-      background: #fff;
-      border-right: 1px solid #ddd;
-      padding: 16px;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
-
-    #main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    #map {
-      height: 55%;
-      width: 100%;
-    }
-
-    #detail {
-      height: 45%;
+    .header {
+      margin: 12px;
       padding: 24px;
+      border-radius: 16px;
+      color: #fff;
+      background: linear-gradient(135deg, #008b84, #2eb6b1);
+    }
+
+    .header small {
+      font-weight: bold;
+      opacity: .9;
+    }
+
+    .header h1 {
+      margin: 8px 0;
+      font-size: 34px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 18px;
+      padding: 0 18px 18px;
+    }
+
+    .panel,
+    .card {
       background: #fff;
-      border-top: 1px solid #ddd;
-      box-sizing: border-box;
+      border: 1px solid #d9e3ea;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+
+    .sidebar {
+      padding: 16px;
+      height: calc(100vh - 150px);
       overflow-y: auto;
+    }
+
+    .section-title {
+      font-weight: bold;
+      margin: 0 0 10px;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cfdbe3;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      border: 1px solid #b8d9d7;
+      background: #eefafa;
+      color: #05746f;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      background: #008b84;
+      color: #fff;
     }
 
     #shop-list {
       list-style: none;
-      padding: 0;
       margin: 0;
+      padding: 0;
     }
 
     #shop-list li {
-      padding: 12px;
+      padding: 14px;
+      border: 1px solid #d9e3ea;
+      border-radius: 12px;
       margin-bottom: 10px;
-      background: #f7f7f7;
-      border-radius: 8px;
       cursor: pointer;
+      background: #fff;
+      transition: .2s;
+    }
+
+    #shop-list li:hover {
+      transform: translateY(-1px);
     }
 
     #shop-list li.active {
-      background: #d0ebff;
-      border-left: 4px solid #339af0;
+      border-color: #00a79d;
+      background: #eefafa;
     }
 
     .shop-id {
@@ -75,124 +123,180 @@
       margin-bottom: 4px;
     }
 
-    #detail-card {
+    .main {
       display: flex;
-      gap: 24px;
-      align-items: flex-start;
-      max-width: 1100px;
+      flex-direction: column;
+      gap: 18px;
     }
 
-    #detail-img {
-      width: 240px;
+    #map {
+      width: 100%;
+      height: 420px;
+      border-radius: 12px;
+    }
+
+    .map-card {
+      padding: 14px;
       height: auto;
-      max-height: 200px;
-      object-fit: cover;
-      border-radius: 10px;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
 
-    #detail-info {
-      flex: 1;
-      min-width: 240px;
+    .detail {
+      padding: 18px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: minmax(500px, 760px) 220px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .shop-image {
+      width: 100%;
+      max-width: 720px;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .detail h2 {
+      margin: 8px 0;
+      font-size: 30px;
+    }
+
+    .article {
+      line-height: 1.8;
+      margin-bottom: 18px;
+      color: #444;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .info-box {
+      border: 1px solid #d9e3ea;
+      border-radius: 10px;
+      padding: 12px;
+      background: #fafcfd;
+      font-size: 14px;
     }
 
     .label {
       font-weight: bold;
-      color: #333;
+      display: block;
+      margin-bottom: 6px;
+      color: #345;
     }
 
-    .detail-row {
-      margin-bottom: 7px;
-      line-height: 1.5;
+    .qr-card {
+      padding: 16px;
+      border: 1px solid #d9e3ea;
+      border-radius: 12px;
+      background: #fafcfd;
     }
 
-    .article {
-      margin-top: 12px;
-      padding: 12px;
-      background: #f7f7f7;
-      border-radius: 8px;
-      line-height: 1.7;
-    }
-
-    .qr-img {
-      width: 120px;
-      margin-top: 6px;
-      border: 1px solid #ddd;
-      padding: 6px;
+    .qr-card img {
+      width: 100%;
+      border: 1px solid #d9e3ea;
+      border-radius: 10px;
+      padding: 8px;
       background: #fff;
+      margin-bottom: 10px;
     }
 
-    .meta {
-      font-size: 12px;
-      color: #777;
-      margin-bottom: 12px;
+    .btn {
+      display: block;
+      text-align: center;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      border: 1px solid #008b84;
     }
 
-    a {
-      color: #0066cc;
+    .btn-primary {
+      background: #008b84;
+      color: #fff;
     }
 
-    @media (max-width: 768px) {
-      #app {
-        flex-direction: column;
+    .result-count {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
       }
 
-      #sidebar {
-        width: 100%;
-        height: 180px;
-        border-right: none;
-        border-bottom: 1px solid #ddd;
+      .sidebar {
+        height: auto;
       }
 
-      #main {
-        height: calc(100vh - 180px);
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .shop-image {
+        max-width: 100%;
+        height: auto;
       }
 
       #map {
-        height: 45%;
-      }
-
-      #detail {
-        height: 55%;
-        padding: 16px;
-      }
-
-      #detail-card {
-        flex-direction: column;
-      }
-
-      #detail-img {
-        width: 100%;
-        max-height: none;
+        height: 320px;
       }
     }
   </style>
 </head>
 
 <body>
-  <div id="app">
-    <div id="sidebar">
-      <h2>店舗一覧</h2>
+
+  <header class="header">
+    <small>SHONAN TOURISM MAP</small>
+    <h1>湘南観光マップ</h1>
+    <p>湘南エリアの飲食店・観光スポットを紹介する観光マップです。</p>
+  </header>
+
+  <div class="layout">
+
+    <aside class="panel sidebar">
+      <p class="section-title">検索</p>
+      <input id="searchInput" type="text" placeholder="店舗名・エリア・説明で検索">
+
+      <p class="section-title">カテゴリ</p>
+      <div id="categoryChips" class="chips"></div>
+
+      <p class="section-title">エリア</p>
+      <div id="areaChips" class="chips"></div>
+
+      <p class="section-title">店舗一覧</p>
+      <div id="resultCount" class="result-count"></div>
       <ul id="shop-list"></ul>
-    </div>
+    </aside>
 
-    <div id="main">
-      <div id="map"></div>
+    <main class="main">
+      <section class="panel map-card">
+        <p class="section-title">地図エリア</p>
+        <div id="map"></div>
+      </section>
 
-      <div id="detail">
-        <h2 id="detail-name">店舗を選択してください</h2>
-        <div class="meta" id="detail-ids"></div>
+      <section class="card detail">
+        <p class="section-title">店舗詳細</p>
+        <div id="detail">左の店舗を選択してください</div>
+      </section>
+    </main>
 
-        <div id="detail-card">
-          <img id="detail-img" src="" alt="" style="display:none;">
-
-          <div id="detail-info">
-            <p>左の店舗一覧、または地図上のピンをクリックすると詳細が表示されます。</p>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -200,72 +304,240 @@
   <script>
     const map = L.map('map').setView([35.31, 139.48], 14);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }
+    ).addTo(map);
 
     const shopList = document.getElementById('shop-list');
+    const detail = document.getElementById('detail');
+    const searchInput = document.getElementById('searchInput');
+    const categoryChips = document.getElementById('categoryChips');
+    const areaChips = document.getElementById('areaChips');
+    const resultCount = document.getElementById('resultCount');
+
+    let shops = [];
+    let markers = [];
+    let selectedCategory = 'all';
+    let selectedArea = 'all';
+
+    function createChip(label, value, active, onClick) {
+      const chip = document.createElement('button');
+      chip.className = active ? 'chip active' : 'chip';
+      chip.textContent = label;
+      chip.dataset.value = value;
+      chip.addEventListener('click', onClick);
+      return chip;
+    }
+
+    function renderFilterChips() {
+      const categories = ['all', ...new Set(shops.map(s => s.category).filter(Boolean))];
+      const areas = ['all', ...new Set(shops.map(s => s.area).filter(Boolean))];
+
+      categoryChips.innerHTML = '';
+      areaChips.innerHTML = '';
+
+      categories.forEach(cat => {
+        categoryChips.appendChild(
+          createChip(
+            cat === 'all' ? 'すべて' : cat,
+            cat,
+            cat === selectedCategory,
+            () => {
+              selectedCategory = cat;
+              render();
+              renderFilterChips();
+            }
+          )
+        );
+      });
+
+      areas.forEach(area => {
+        areaChips.appendChild(
+          createChip(
+            area === 'all' ? 'すべて' : area,
+            area,
+            area === selectedArea,
+            () => {
+              selectedArea = area;
+              render();
+              renderFilterChips();
+            }
+          )
+        );
+      });
+    }
 
     function showDetail(shop) {
-      document.getElementById('detail-name').textContent = shop.name;
+      detail.innerHTML = `
+        <div class="detail-grid">
+          <div>
+            <img
+              class="shop-image"
+              src="images/shop_img/${shop.imageFile}"
+              alt="${shop.imageId}"
+            >
 
-      document.getElementById('detail-ids').textContent =
-        "SHOP ID: " + shop.shopId +
-        " / IMAGE ID: " + shop.imageId +
-        " / QR ID: " + shop.qrId;
+            <div class="chips">
+              <span class="chip">${shop.area}</span>
+              <span class="chip">${shop.category}</span>
+              <span class="chip">${shop.target}</span>
+              <span class="chip">${shop.crowd}</span>
+            </div>
 
-      const detailImg = document.getElementById('detail-img');
+            <h2>${shop.name}（${shop.shopId}）</h2>
 
-      if (shop.imageFile) {
-        detailImg.src = "images/shop_img/" + shop.imageFile;
-        detailImg.alt = shop.imageId;
-        detailImg.style.display = "block";
-      } else {
-        detailImg.style.display = "none";
-      }
+            <p class="article">
+              ${shop.article || shop.shortDesc}
+            </p>
 
-      document.getElementById('detail-info').innerHTML = `
-        <div class="detail-row"><span class="label">エリア：</span>${shop.area}</div>
-        <div class="detail-row"><span class="label">一言説明：</span>${shop.shortDesc}</div>
-        <div class="detail-row"><span class="label">強み：</span>${shop.strength}</div>
-        <div class="detail-row"><span class="label">おすすめ：</span>${shop.recommend}</div>
-        <div class="detail-row"><span class="label">ターゲット：</span>${shop.target}</div>
-        <div class="detail-row"><span class="label">所要時間：</span>${shop.duration}</div>
-        <div class="detail-row"><span class="label">混雑：</span>${shop.crowd}</div>
-        <div class="detail-row"><span class="label">アクセス：</span>${shop.access}</div>
-        <div class="detail-row"><span class="label">営業時間：</span>${shop.businessHours}</div>
-        <div class="detail-row"><span class="label">定休日：</span>${shop.closed}</div>
-        ${shop.shopUrl ? `<div class="detail-row"><a href="${shop.shopUrl}" target="_blank">SHOP URL</a></div>` : ''}
-        ${shop.article ? `<div class="article"><span class="label">紹介記事：</span><br>${shop.article}</div>` : ''}
-        ${shop.qrImage ? `
-          <div class="detail-row">
-            <span class="label">QRコード：</span><br>
-            <img src="images/qr/${shop.qrImage}" class="qr-img" alt="${shop.qrId}">
+            <div class="info-grid">
+              <div class="info-box">
+                <span class="label">アクセス</span>
+                ${shop.access}
+              </div>
+
+              <div class="info-box">
+                <span class="label">営業時間</span>
+                ${shop.businessHours}
+              </div>
+
+              <div class="info-box">
+                <span class="label">定休日</span>
+                ${shop.closed}
+              </div>
+
+              <div class="info-box">
+                <span class="label">所要時間</span>
+                ${shop.duration}
+              </div>
+
+              <div class="info-box">
+                <span class="label">強み</span>
+                ${shop.strength}
+              </div>
+
+              <div class="info-box">
+                <span class="label">おすすめ</span>
+                ${shop.recommend}
+              </div>
+            </div>
           </div>
-        ` : ''}
+
+          <div class="qr-card">
+            <p class="section-title">SNS QRコード</p>
+
+            ${shop.qrImage ? `
+              <img src="images/qr/${shop.qrImage}" alt="${shop.qrId}">
+              <small>${shop.qrId}</small>
+            ` : '<p>QRコード未登録</p>'}
+
+            ${shop.shopUrl ? `
+              <a class="btn btn-primary" href="${shop.shopUrl}" target="_blank">
+                SNSを見る
+              </a>
+            ` : ''}
+          </div>
+        </div>
       `;
     }
+
+    function clearMarkers() {
+      markers.forEach(marker => map.removeLayer(marker));
+      markers = [];
+    }
+
+    function render() {
+      shopList.innerHTML = '';
+      clearMarkers();
+
+      const keyword = searchInput.value.trim().toLowerCase();
+
+      const filtered = shops.filter(shop => {
+        const searchText = [
+          shop.shopId,
+          shop.name,
+          shop.area,
+          shop.category,
+          shop.shortDesc,
+          shop.strength,
+          shop.recommend,
+          shop.target,
+          shop.crowd,
+          shop.access,
+          shop.article
+        ].join(' ').toLowerCase();
+
+        const matchesKeyword = keyword === '' || searchText.includes(keyword);
+        const matchesCategory = selectedCategory === 'all' || shop.category === selectedCategory;
+        const matchesArea = selectedArea === 'all' || shop.area === selectedArea;
+
+        return matchesKeyword && matchesCategory && matchesArea;
+      });
+
+      resultCount.textContent = `${filtered.length}件表示中`;
+
+      filtered.forEach(shop => {
+        const marker = L.marker([shop.lat, shop.lng])
+          .addTo(map)
+          .bindPopup(`
+            <strong>${shop.name}</strong><br>
+            ${shop.shortDesc}
+          `);
+
+        const li = document.createElement('li');
+
+        li.innerHTML = `
+          <div class="shop-id">${shop.shopId}</div>
+          <strong>${shop.name}</strong><br>
+          <span>${shop.shortDesc}</span><br>
+          <small>${shop.area} / ${shop.category}</small>
+        `;
+
+        function selectShop() {
+          document.querySelectorAll('#shop-list li')
+            .forEach(el => el.classList.remove('active'));
+
+          li.classList.add('active');
+
+          map.setView([shop.lat, shop.lng], 16);
+          marker.openPopup();
+          showDetail(shop);
+        }
+
+        li.addEventListener('click', selectShop);
+        marker.on('click', selectShop);
+
+        shopList.appendChild(li);
+        markers.push(marker);
+      });
+    }
+
+    searchInput.addEventListener('input', render);
 
     fetch('shops.csv')
       .then(response => response.text())
       .then(data => {
         const rows = data.trim().split('\n').slice(1);
 
-        rows.forEach(row => {
-          if (!row.trim()) return;
-
+        shops = rows.map(row => {
           const cols = row.split(',');
 
-          const shop = {
+          return {
             shopId: cols[0] || '',
             name: cols[1] || '',
             lat: parseFloat(cols[2]),
             lng: parseFloat(cols[3]),
+
             imageId: cols[4] || '',
             imageFile: cols[5] || '',
+
             qrId: cols[6] || '',
             qrImage: cols[7] || '',
+
             area: cols[8] || '',
             shortDesc: cols[9] || '',
             strength: cols[10] || '',
@@ -274,53 +546,26 @@
             duration: cols[13] || '',
             crowd: cols[14] || '',
             shopUrl: cols[15] || '',
+
             access: cols[16] || '',
             businessHours: cols[17] || '',
             closed: cols[18] || '',
-            article: cols[19] || ''
+            article: cols[19] || '',
+            category: cols[20] || ''
           };
+        }).filter(shop => !isNaN(shop.lat) && !isNaN(shop.lng));
 
-          if (isNaN(shop.lat) || isNaN(shop.lng)) return;
+        renderFilterChips();
+        render();
 
-          const popupHtml = `
-            <div style="width:200px;">
-              <strong>${shop.name}</strong><br>
-              ${shop.shortDesc}
-            </div>
-          `;
-
-          const marker = L.marker([shop.lat, shop.lng])
-            .addTo(map)
-            .bindPopup(popupHtml);
-
-          const li = document.createElement('li');
-          li.innerHTML = `
-            <div class="shop-id">${shop.shopId}</div>
-            <strong>${shop.name}</strong><br>
-            <span style="color:#666; font-size:14px;">${shop.shortDesc}</span>
-          `;
-
-          function selectShop() {
-            map.setView([shop.lat, shop.lng], 16);
-            marker.openPopup();
-
-            document.querySelectorAll('#shop-list li').forEach(el => {
-              el.classList.remove('active');
-            });
-
-            li.classList.add('active');
-            showDetail(shop);
-          }
-
-          li.addEventListener('click', selectShop);
-          marker.on('click', selectShop);
-
-          shopList.appendChild(li);
-        });
+        if (shops.length > 0) {
+          showDetail(shops[0]);
+        }
       })
       .catch(error => {
         console.error('CSV読み込みエラー:', error);
       });
   </script>
+
 </body>
 </html>
